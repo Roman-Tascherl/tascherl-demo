@@ -1,0 +1,131 @@
+name: Setup Logos + Patch App
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Repo klonen
+        uses: actions/checkout@v3
+
+      - name: Node installieren
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Ordner erstellen
+        run: mkdir -p src/assets/logos
+
+      - name: Logos herunterladen
+        run: |
+          curl -L https://logo.clearbit.com/fitinn.at -o src/assets/logos/fitinn.png
+          curl -L https://logo.clearbit.com/joebonusclub.at -o src/assets/logos/joe.png
+          curl -L https://logo.clearbit.com/cineplexx.at -o src/assets/logos/cineplexx.png
+          curl -L https://logo.clearbit.com/billa.at -o src/assets/logos/billa.png
+          curl -L https://logo.clearbit.com/spar.at -o src/assets/logos/spar.png
+          curl -L https://logo.clearbit.com/lidl.at -o src/assets/logos/lidl.png
+          curl -L https://logo.clearbit.com/hofer.at -o src/assets/logos/hofer.png
+          curl -L https://logo.clearbit.com/dm.at -o src/assets/logos/dm.png
+          curl -L https://logo.clearbit.com/mcdonalds.com -o src/assets/logos/mcdonalds.png
+          curl -L https://logo.clearbit.com/ikea.com -o src/assets/logos/ikea.png
+          curl -L https://logo.clearbit.com/amazon.com -o src/assets/logos/amazon.png
+
+      - name: Patch Script erstellen
+        run: |
+          cat << 'EOF' > patch-app.js
+          const fs = require("fs");
+          const FILE = "./src/App.jsx";
+          let code = fs.readFileSync(FILE, "utf-8");
+
+          /* IMPORTS */
+          const imports = `
+import fitinnLogo from "./assets/logos/fitinn.png";
+import joeLogo from "./assets/logos/joe.png";
+import cineplexxLogo from "./assets/logos/cineplexx.png";
+import billaLogo from "./assets/logos/billa.png";
+import sparLogo from "./assets/logos/spar.png";
+import lidlLogo from "./assets/logos/lidl.png";
+import hoferLogo from "./assets/logos/hofer.png";
+import dmLogo from "./assets/logos/dm.png";
+import mcdonaldsLogo from "./assets/logos/mcdonalds.png";
+import ikeaLogo from "./assets/logos/ikea.png";
+import amazonLogo from "./assets/logos/amazon.png";
+`;
+
+          code = code.replace(
+            /import {[^}]*} from "lucide-react";/,
+            (m) => m + "\n" + imports
+          );
+
+          /* LOGOS OBJECT */
+          code = code.replace(
+            /const LOGOS = {[^}]*};/,
+            `const LOGOS = {
+  fitinn: fitinnLogo,
+  joe: joeLogo,
+  cineplexx: cineplexxLogo,
+  billa: billaLogo,
+  spar: sparLogo,
+  lidl: lidlLogo,
+  hofer: hoferLogo,
+  dm: dmLogo,
+  mcdonalds: mcdonaldsLogo,
+  ikea: ikeaLogo,
+  amazon: amazonLogo,
+};`
+          );
+
+          /* COMPANY LOGO */
+          code = code.replace(
+            /function CompanyLogo[\s\S]*?\}\n/,
+            `function CompanyLogo({ brand, company }) {
+  const logo = LOGOS[brand];
+
+  if (logo) {
+    return (
+      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center overflow-hidden shadow">
+        {logo}
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center font-bold">
+      {company?.slice(0, 2).toUpperCase()}
+    </div>
+  );
+}
+`
+          );
+
+          /* LOCKSCREEN */
+          code = code.replace(
+            /onUnlock=\{\(\) => setLocked\(false\)\}/,
+            `onUnlock={() => {
+              setLocked(false);
+              setSelectedCard(cards[0]);
+            }}`
+          );
+
+          /* HTML FIX */
+          code = code.replace(/&amp;/g, "&");
+
+          fs.writeFileSync(FILE, code);
+          console.log("✅ Patch fertig");
+          EOF
+
+      - name: Patch ausführen
+        run: node patch-app.js
+
+      - name: Änderungen committen
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Auto: Logos + Patch hinzugefügt" || echo "Keine Änderungen"
+          git push
