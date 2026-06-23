@@ -26,9 +26,9 @@ const initialCards = [
     id: 1,
     name: "Fitinn Gym",
     company: "FITINN",
+    brand: "fitinn",
     type: "NFC",
     category: "Fitness",
-    logo: "F",
     color: "from-lime-400 via-green-500 to-emerald-700",
     info: "Mitgliedskarte · Zugang zum Gym",
     code: "FITINN-AT-2024-8841",
@@ -39,9 +39,9 @@ const initialCards = [
     id: 2,
     name: "JÖ Karte",
     company: "jö Bonus Club",
+    brand: "joe",
     type: "QR",
     category: "Bonuskarte",
-    logo: "jö",
     color: "from-rose-400 via-red-500 to-pink-700",
     info: "1240 Ös gesammelt",
     code: "JOE-4459-8820-AT",
@@ -52,9 +52,9 @@ const initialCards = [
     id: 3,
     name: "Cineplexx Bonus",
     company: "Cineplexx",
+    brand: "cineplexx",
     type: "Barcode",
     category: "Entertainment",
-    logo: "C",
     color: "from-sky-400 via-blue-500 to-indigo-700",
     info: "Movie Bonus Card",
     code: "CPX-9922-1048",
@@ -109,12 +109,27 @@ export default function App() {
           }
         }
 
+        @keyframes scanPulse {
+          0%, 100% {
+            transform: scale(.96);
+            opacity: .6;
+          }
+          50% {
+            transform: scale(1.06);
+            opacity: 1;
+          }
+        }
+
         .animate-floatIn {
           animation: floatIn .45s ease-out both;
         }
 
         .animate-softPulse {
           animation: softPulse 2s ease-in-out infinite;
+        }
+
+        .animate-scanPulse {
+          animation: scanPulse 1.7s ease-in-out infinite;
         }
 
         .glass {
@@ -146,7 +161,7 @@ function SplashScreen() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center overflow-hidden">
       <div className="relative flex flex-col items-center gap-5">
-        <div className="absolute w-40 h-40 rounded-full bg-fuchsia-500/30 blur-3xl animate-softPulse" />
+        <div className="absolute w-44 h-44 rounded-full bg-fuchsia-500/30 blur-3xl animate-softPulse" />
 
         <div className="relative w-24 h-24 rounded-[30px] bg-gradient-to-br from-purple-400 via-pink-500 to-orange-400 shadow-2xl shadow-pink-500/30 flex items-center justify-center animate-bounce">
           <span className="text-white text-4xl font-black">T</span>
@@ -193,7 +208,9 @@ function TascherlApp() {
   const [settings, setSettings] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEYS.settings);
-      return saved ? JSON.parse(saved) : initialSettings;
+      return saved
+        ? { ...initialSettings, ...JSON.parse(saved) }
+        : initialSettings;
     } catch {
       return initialSettings;
     }
@@ -398,7 +415,7 @@ function WalletCard({ card, index, onClick }) {
 
         <div className="relative flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <CompanyLogo logo={card.logo} />
+            <CompanyLogo brand={card.brand} company={card.company} />
 
             <div>
               <p className="text-white/70 text-xs">{card.company}</p>
@@ -426,10 +443,41 @@ function WalletCard({ card, index, onClick }) {
   );
 }
 
-function CompanyLogo({ logo }) {
+function CompanyLogo({ brand, company }) {
+  if (brand === "fitinn") {
+    return (
+      <div className="w-14 h-14 rounded-2xl bg-black text-lime-300 flex flex-col items-center justify-center shadow-lg border border-lime-300/30">
+        <span className="text-[15px] font-black leading-none tracking-tight">
+          FIT
+        </span>
+        <span className="text-[15px] font-black leading-none tracking-tight">
+          INN
+        </span>
+      </div>
+    );
+  }
+
+  if (brand === "joe") {
+    return (
+      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg border border-red-100">
+        <span className="text-red-600 font-black text-2xl lowercase tracking-tighter">
+          jö
+        </span>
+      </div>
+    );
+  }
+
+  if (brand === "cineplexx") {
+    return (
+      <div className="w-14 h-14 rounded-2xl bg-[#062a59] flex items-center justify-center shadow-lg border border-sky-200/20">
+        <span className="text-yellow-300 font-black text-2xl">C</span>
+      </div>
+    );
+  }
+
   return (
-    <div className="w-12 h-12 rounded-2xl bg-white/95 text-black flex items-center justify-center font-black text-lg shadow-lg">
-      {logo}
+    <div className="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center font-black text-sm shadow-lg">
+      {company?.slice(0, 2).toUpperCase() || "?"}
     </div>
   );
 }
@@ -499,7 +547,7 @@ function CardDetailModal({ card, onClose, settings }) {
 
             <div className="relative flex items-start justify-between">
               <div className="flex items-center gap-3">
-                <CompanyLogo logo={card.logo} />
+                <CompanyLogo brand={card.brand} company={card.company} />
 
                 <div>
                   <p className="text-white/70 text-xs">{card.company}</p>
@@ -531,28 +579,31 @@ function CardDetailModal({ card, onClose, settings }) {
           <div className="bg-white rounded-t-[34px] p-5 text-black">
             <div className="flex items-center justify-between mb-3">
               <div>
-                <p className="text-xs text-black/50">Code</p>
+                <p className="text-xs text-black/50">Kartencode</p>
                 <p className="font-mono text-sm">{card.code}</p>
               </div>
 
               <CardTypeBadgeLight type={card.type} />
             </div>
 
-            <FakeQRCode value={card.code} />
+            <CardCredentialDisplay card={card} />
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <button className="py-3 rounded-2xl bg-black text-white font-semibold active:scale-95 transition flex items-center justify-center gap-2">
-                {card.type === "NFC" ? (
-                  <SmartphoneNfc size={17} />
-                ) : (
-                  <QrCode size={17} />
-                )}
-                {card.type === "NFC" ? "NFC starten" : "QR anzeigen"}
+            <div className="mt-5 flex gap-3">
+              <button className="flex-1 py-3.5 rounded-2xl bg-black text-white font-bold active:scale-95 transition flex items-center justify-center gap-2 shadow-lg">
+                {card.type === "NFC" && <SmartphoneNfc size={18} />}
+                {card.type === "QR" && <QrCode size={18} />}
+                {card.type === "Barcode" && <CreditCard size={18} />}
+
+                {card.type === "NFC"
+                  ? "NFC bereit"
+                  : card.type === "QR"
+                  ? "Code bereit"
+                  : "Barcode bereit"}
               </button>
 
               <button
                 onClick={onClose}
-                className="py-3 rounded-2xl bg-black/5 font-semibold active:scale-95 transition"
+                className="px-5 py-3.5 rounded-2xl bg-black/5 font-bold active:scale-95 transition"
               >
                 Fertig
               </button>
@@ -575,6 +626,129 @@ function CardTypeBadgeLight({ type }) {
   return (
     <div className="px-3 py-1 rounded-full bg-black/5 text-black text-xs font-semibold">
       {type}
+    </div>
+  );
+}
+
+/* ---------------- CARD CREDENTIAL DISPLAY ---------------- */
+
+function CardCredentialDisplay({ card }) {
+  if (card.type === "NFC") {
+    return <NFCDisplay card={card} />;
+  }
+
+  if (card.type === "Barcode") {
+    return <BarcodeDisplay value={card.code} />;
+  }
+
+  return <QRDisplay value={card.code} />;
+}
+
+function QRDisplay({ value }) {
+  return (
+    <div className="rounded-[28px] bg-neutral-100 p-4 border border-black/10 shadow-inner">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <p className="text-xs text-black/45">QR-Code</p>
+          <p className="text-sm font-bold text-black">Zum Scannen bereit</p>
+        </div>
+
+        <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+          <QrCode size={18} />
+        </div>
+      </div>
+
+      <FakeQRCode value={value} />
+
+      <p className="mt-3 text-center text-[11px] text-black/45 font-mono">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function BarcodeDisplay({ value }) {
+  const bars = useMemo(() => {
+    let seed = 0;
+
+    for (let i = 0; i < value.length; i++) {
+      seed = (seed + value.charCodeAt(i) * (i + 3)) % 997;
+    }
+
+    return Array.from({ length: 42 }, (_, i) => {
+      const width = ((i * 7 + seed) % 4) + 1;
+      const height = ((i * 11 + seed) % 18) + 46;
+      return { width, height };
+    });
+  }, [value]);
+
+  return (
+    <div className="rounded-[28px] bg-white p-4 border border-black/10 shadow-inner">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <p className="text-xs text-black/45">Barcode</p>
+          <p className="text-sm font-bold text-black">Kassa-Scan bereit</p>
+        </div>
+
+        <div className="w-9 h-9 rounded-xl bg-black text-white flex items-center justify-center">
+          <CreditCard size={18} />
+        </div>
+      </div>
+
+      <div className="h-28 bg-white rounded-2xl flex items-end justify-center gap-[2px] px-3 py-4 border border-black/5">
+        {bars.map((bar, index) => (
+          <div
+            key={index}
+            className="bg-black rounded-sm"
+            style={{
+              width: `${bar.width}px`,
+              height: `${bar.height}px`,
+            }}
+          />
+        ))}
+      </div>
+
+      <p className="mt-3 text-center text-[11px] text-black/55 font-mono tracking-widest">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function NFCDisplay({ card }) {
+  return (
+    <div className="rounded-[28px] bg-neutral-950 text-white p-5 border border-white/10 shadow-inner overflow-hidden relative">
+      <div className="absolute -right-10 -top-10 w-32 h-32 rounded-full bg-emerald-400/25 blur-3xl" />
+      <div className="absolute -left-10 bottom-0 w-24 h-24 rounded-full bg-lime-400/20 blur-2xl" />
+
+      <div className="relative flex items-center justify-between mb-5">
+        <div>
+          <p className="text-xs text-white/45">NFC-Zugang</p>
+          <p className="text-sm font-bold text-white">Bereit zum Aktivieren</p>
+        </div>
+
+        <div className="w-11 h-11 rounded-2xl bg-emerald-400 text-black flex items-center justify-center animate-softPulse">
+          <SmartphoneNfc size={22} />
+        </div>
+      </div>
+
+      <div className="relative h-32 rounded-3xl bg-white/10 border border-white/10 flex flex-col items-center justify-center">
+        <div className="w-24 h-24 rounded-full border border-emerald-300/25 flex items-center justify-center animate-scanPulse">
+          <div className="w-18 h-18 rounded-full border-2 border-emerald-300/50 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-full border-2 border-emerald-300/80 flex items-center justify-center">
+              <SmartphoneNfc size={24} className="text-emerald-300" />
+            </div>
+          </div>
+        </div>
+
+        <p className="mt-3 text-xs text-white/55">
+          Handy ans Terminal halten
+        </p>
+      </div>
+
+      <p className="relative mt-3 text-center text-[11px] text-white/40 font-mono">
+        Token: {card.code}
+      </p>
     </div>
   );
 }
@@ -644,6 +818,7 @@ function AddCardModal({ onClose, onAdd }) {
       id: Date.now(),
       name,
       company,
+      brand: "custom",
       type,
       category:
         type === "NFC"
@@ -651,7 +826,6 @@ function AddCardModal({ onClose, onAdd }) {
           : type === "QR"
           ? "QR Karte"
           : "Barcode Karte",
-      logo: company.slice(0, 2).toUpperCase(),
       color: colors[type],
       info: "Neu hinzugefügt",
       code: `${type}-${Math.floor(Math.random() * 999999)}-${Date.now()
@@ -733,10 +907,10 @@ function AddCardModal({ onClose, onAdd }) {
 
 function SettingsScreen({ settings, setSettings, cards, setCards }) {
   function updateSetting(key, value) {
-    setSettings({
-      ...settings,
-      [key]: value,
-    });
+    setSettings((prev) => ({
+      ...prev,
+      value,
+    }));
   }
 
   function resetDemo() {
