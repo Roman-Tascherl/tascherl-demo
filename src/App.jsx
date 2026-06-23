@@ -475,11 +475,14 @@ function CompanyLogo({ brand, company }) {
 
   if (logo) {
     return (
-      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center p-2 shadow">
+      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow overflow-hidden">
         <img
           src={logo}
           alt={company}
-          className="w-full h-full object-contain"
+          className="w-full h-full object-contain p-2"
+          onError={(e) => {
+            e.target.style.display = "none";
+          }}
         />
       </div>
     );
@@ -491,6 +494,7 @@ function CompanyLogo({ brand, company }) {
     </div>
   );
 }
+
 
 function CardTypeBadge({ type }) {
   const icon =
@@ -917,11 +921,11 @@ function AddCardModal({ onClose, onAdd }) {
 
 function SettingsScreen({ settings, setSettings, cards, setCards }) {
   function updateSetting(key, value) {
-    setSettings((prev) => ({
-      ...prev,
-      value,
-    }));
-  }
+  setSettings((prev) => ({
+    ...prev,
+    [key]: value,
+  }));
+}
 
   function resetDemo() {
     setCards(initialCards);
