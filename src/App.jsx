@@ -1,3 +1,27 @@
+const LOGOS = {
+  fitinn: "https://logo.clearbit.com/fitinn.at",
+  joe: "https://logo.clearbit.com/joebonus.at",
+  cineplexx: "https://logo.clearbit.com/cineplexx.at",
+  billa: "https://logo.clearbit.com/billa.at",
+  spar: "https://logo.clearbit.com/spar.at",
+  lidl: "https://logo.clearbit.com/lidl.at",
+  hofer: "https://logo.clearbit.com/hofer.at",
+  dm: "https://logo.clearbit.com/dm.de",
+  mcdonalds: "https://logo.clearbit.com/mcdonalds.com",
+  burgerking: "https://logo.clearbit.com/burgerking.com",
+  starbucks: "https://logo.clearbit.com/starbucks.com",
+  ikea: "https://logo.clearbit.com/ikea.com",
+  amazon: "https://logo.clearbit.com/amazon.com",
+  netflix: "https://logo.clearbit.com/netflix.com",
+  spotify: "https://logo.clearbit.com/spotify.com",
+  adidas: "https://logo.clearbit.com/adidas.com",
+  nike: "https://logo.clearbit.com/nike.com",
+  zalando: "https://logo.clearbit.com/zalando.com",
+  paypal: "https://logo.clearbit.com/paypal.com",
+  google: "https://logo.clearbit.com/google.com",
+  apple: "https://logo.clearbit.com/apple.com",
+};
+``
 import { useEffect, useMemo, useState } from "react";
 import {
   CreditCard,
@@ -444,43 +468,27 @@ function WalletCard({ card, index, onClick }) {
 }
 
 function CompanyLogo({ brand, company }) {
-  if (brand === "fitinn") {
-    return (
-      <div className="w-14 h-14 rounded-2xl bg-black text-lime-300 flex flex-col items-center justify-center shadow-lg border border-lime-300/30">
-        <span className="text-[15px] font-black leading-none tracking-tight">
-          FIT
-        </span>
-        <span className="text-[15px] font-black leading-none tracking-tight">
-          INN
-        </span>
-      </div>
-    );
-  }
+  const logo = LOGOS[brand];
 
-  if (brand === "joe") {
+  if (logo) {
     return (
-      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-lg border border-red-100">
-        <span className="text-red-600 font-black text-2xl lowercase tracking-tighter">
-          jö
-        </span>
-      </div>
-    );
-  }
-
-  if (brand === "cineplexx") {
-    return (
-      <div className="w-14 h-14 rounded-2xl bg-[#062a59] flex items-center justify-center shadow-lg border border-sky-200/20">
-        <span className="text-yellow-300 font-black text-2xl">C</span>
+      <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center p-2 shadow">
+        <img
+          src={logo}
+          alt={company}
+          className="max-w-full max-h-full object-contain"
+        />
       </div>
     );
   }
 
   return (
-    <div className="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center font-black text-sm shadow-lg">
-      {company?.slice(0, 2).toUpperCase() || "?"}
+    <div className="w-14 h-14 rounded-2xl bg-white text-black flex items-center justify-center font-bold">
+      {company?.slice(0, 2).toUpperCase()}
     </div>
   );
 }
+``
 
 function CardTypeBadge({ type }) {
   const icon =
