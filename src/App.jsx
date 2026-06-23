@@ -22,58 +22,30 @@ export default function App() {
   const CurrentComponent = screens.find(s => s.id === currentScreen)?.component || HomeScreen
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-black to-gray-950 flex items-center justify-center p-8">
-      <div className="flex gap-12 w-full max-w-7xl">
-        {/* iPhone 17 Preview */}
-        <div className="flex-1">
-          <iPhone17Frame>
-            <CurrentComponent onNavigate={setCurrentScreen} />
-          </iPhone17Frame>
-        </div>
+    <div className="min-h-screen bg-gradient-to-br from-black via-slate-950 to-black flex items-center justify-center p-0">
+      {/* Full Screen iPhone View */}
+      <iPhone17Frame>
+        <CurrentComponent onNavigate={setCurrentScreen} />
+      </iPhone17Frame>
 
-        {/* Navigation & Info */}
-        <div className="flex-1">
-          <div className="glass rounded-3xl p-6 h-full overflow-y-auto">
-            <h1 className="text-3xl font-bold text-white mb-2">Tascherl Demo</h1>
-            <p className="text-gray-400 text-sm mb-8">iOS 18 Liquid Glass Design - iPhone 17</p>
-
-            <div className="space-y-3 mb-8">
-              {screens.map(screen => (
-                <button
-                  key={screen.id}
-                  onClick={() => setCurrentScreen(screen.id)}
-                  className={`w-full text-left px-4 py-3 rounded-xl font-semibold transition-all ${
-                    currentScreen === screen.id
-                      ? 'glass-light text-white'
-                      : 'text-gray-300 hover:text-white hover:glass'
-                  }`}
-                >
-                  {screen.name}
-                </button>
-              ))}
-            </div>
-
-            <div className="space-y-4">
-              <h3 className="text-white font-semibold text-lg">✨ Features</h3>
-              <ul className="text-gray-300 text-sm space-y-2">
-                <li>• Gutscheinkarten & Barcodes</li>
-                <li>• Mitgliedskarten verwaltung</li>
-                <li>• NFC-Kartenspeicherung</li>
-                <li>• Standort-basierte Empfehlungen</li>
-                <li>• 🔒 Europäische Datensicherheit</li>
-                <li>• Biometrische Sperre</li>
-              </ul>
-            </div>
-
-            <div className="mt-8 pt-6 border-t border-white/10">
-              <h3 className="text-white font-semibold text-sm mb-3">Golden Circle</h3>
-              <div className="glass-card rounded-2xl p-4 text-xs space-y-2">
-                <p className="text-blue-400"><strong>Why:</strong> Leichteren Alltag</p>
-                <p className="text-purple-400"><strong>How:</strong> Alle Karten digital vereint</p>
-                <p className="text-green-400"><strong>What:</strong> Tascherl App</p>
-              </div>
-            </div>
-          </div>
+      {/* Bottom Navigation Overlay */}
+      <div className="fixed bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black via-black/80 to-transparent pointer-events-none" />
+      
+      <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="flex gap-2 bg-white/10 backdrop-blur-3xl rounded-full px-4 py-3 border border-white/20">
+          {screens.map(screen => (
+            <button
+              key={screen.id}
+              onClick={() => setCurrentScreen(screen.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                currentScreen === screen.id
+                  ? 'bg-white/30 text-white'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              {screen.name.split(' ')[0]}
+            </button>
+          ))}
         </div>
       </div>
     </div>
