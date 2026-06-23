@@ -11,16 +11,13 @@ import billaLogo from "./assets/logos/billa.png";
 import sparLogo from "./assets/logos/spar.png";
 import lidlLogo from "./assets/logos/lidl.svg";
 import mcdonaldsLogo from "./assets/logos/mcdonalds.svg";
-import fitinnLogo from "./assets/logos/fitinn.png";
-import cineplexxLogo from "./assets/logos/cineplexx.png"; // falls vorhanden
+
 const LOGOS = {
   amazon: amazonLogo,
   billa: billaLogo,
   spar: sparLogo,
   lidl: lidlLogo,
   mcdonalds: mcdonaldsLogo,
-  fitinn: fitinnLogo,
-  cineplexx: cineplexxLogo,
 };
 ''
 import { useEffect, useMemo, useState } from "react";
