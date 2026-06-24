@@ -6,9 +6,8 @@ function normalizeBrand(name) {
       return { ö: "oe", ä: "ae", ü: "ue", ß: "ss" }[c] || c;
     });
 }
-
-//test
-''
+console.log("auto deploy test");
+``
 import amazonLogo from "./assets/logos/amazon.svg";
 import billaLogo from "./assets/logos/billa.png";
 import sparLogo from "./assets/logos/spar.png";
