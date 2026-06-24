@@ -51,7 +51,7 @@ const initialCards = [
     company: "Amazon",
     brand: "amazon",
     type: "QR",
-    category: "Onlineshop",
+    category: "AMAZON",
     color: "from-slate-400 to-black",
     info: "Kundenkarte",
     code: "AMZ-22341",
